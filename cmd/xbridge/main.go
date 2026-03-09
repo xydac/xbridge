@@ -8,11 +8,14 @@ import (
 	"github.com/xydac/xbridge/cli"
 )
 
+var version = "dev"
+
 func main() {
 	rootCmd := &cobra.Command{
-		Use:   "xbridge",
-		Short: "A zero-config build proxy for your Mac mini",
-		Long:  "Single binary. No dependencies. Point it at your Xcode project. Build and test from any machine on your network.",
+		Use:     "xbridge",
+		Short:   "A zero-config build proxy for your Mac mini",
+		Long:    "Single binary. No dependencies. Point it at your Xcode project. Build and test from any machine on your network.",
+		Version: version,
 	}
 
 	rootCmd.AddCommand(

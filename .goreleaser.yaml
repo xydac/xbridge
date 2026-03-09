@@ -1,0 +1,47 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+    - go test ./...
+
+builds:
+  - main: ./cmd/xbridge
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+    ignore:
+      - goos: linux
+        goarch: arm64
+
+archives:
+  - format: tar.gz
+    name_template: "xbridge_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+brews:
+  - repository:
+      owner: xydac
+      name: homebrew-xbridge
+    homepage: "https://github.com/xydac/xbridge"
+    description: "Zero-config build proxy for your Mac mini"
+    license: "MIT"
+    directory: Formula
+    test: |
+      assert_match "zero-config build proxy", shell_output("#{bin}/xbridge --help")
