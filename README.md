@@ -15,12 +15,13 @@ A small HTTP server that runs on your Mac and lets you trigger iOS builds, manag
 ## Install
 
 ```bash
-# Homebrew
+# Homebrew (builds from source, no Gatekeeper warnings)
 brew tap xydac/xbridge
-brew install --cask xbridge
+brew install xbridge
 
 # Or download the binary directly
-curl -fsSL https://github.com/xydac/xbridge/releases/latest/download/xbridge_0.1.0_darwin_arm64.tar.gz | tar xz
+VERSION=$(gh release view --repo xydac/xbridge --json tagName -q .tagName)
+curl -fsSL "https://github.com/xydac/xbridge/releases/download/${VERSION}/xbridge_${VERSION#v}_darwin_arm64.tar.gz" | tar xz
 sudo mv xbridge /usr/local/bin/
 
 # Or build from source
@@ -55,6 +56,12 @@ xbridge sim list
 xbridge sim boot "iPhone 16"
 xbridge screenshot
 
+# Interact with the simulator
+xbridge tap 220 400
+xbridge swipe 220 800 220 200
+xbridge text "hello world"
+xbridge key 1                      # home button
+
 # The full combo: pull → build → install → launch
 xbridge run
 ```
@@ -84,6 +91,10 @@ curl http://mac:7900/simulators/BOOTED/screenshot > screen.png
 | `POST` | `/simulators/:udid/install` | Install .app |
 | `POST` | `/simulators/:udid/launch` | Launch app by bundle ID |
 | `POST` | `/simulators/:udid/openurl` | Open a deep link |
+| `POST` | `/simulators/:udid/tap` | Tap at (x, y) coordinates |
+| `POST` | `/simulators/:udid/swipe` | Swipe from (x1,y1) to (x2,y2) |
+| `POST` | `/simulators/:udid/text` | Type text into focused field |
+| `POST` | `/simulators/:udid/key` | Send a key press |
 | `GET` | `/simulators/:udid/logs` | App logs (SSE stream) |
 | `GET` | `/git/status` | Branch, commit, dirty state |
 | `POST` | `/git/pull` | Pull latest |
@@ -168,6 +179,11 @@ make test        # run tests
 make run         # go run ./cmd/xbridge serve
 make build-all   # cross-compile darwin-arm64, darwin-amd64, linux-amd64
 ```
+
+## Requirements
+
+- **Xcode** — for building and simulators
+- **idb** (optional) — required for `tap`, `swipe`, `text`, and `key` commands. Install with `brew install idb-companion`.
 
 ## Tech Stack
 

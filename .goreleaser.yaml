@@ -28,6 +28,17 @@ archives:
 checksum:
   name_template: "checksums.txt"
 
+brews:
+  - repository:
+      owner: xydac
+      name: homebrew-xbridge
+    directory: Formula
+    homepage: "https://github.com/xydac/xbridge"
+    description: "Zero-config build proxy for Mac mini"
+    license: "MIT"
+    install: |
+      bin.install "xbridge"
+
 changelog:
   sort: asc
   filters:
@@ -35,11 +46,3 @@ changelog:
       - "^docs:"
       - "^test:"
 
-homebrew_casks:
-  - repository:
-      owner: xydac
-      name: homebrew-xbridge
-      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
-    homepage: "https://github.com/xydac/xbridge"
-    description: "Zero-config build proxy for your Mac mini"
-    directory: Casks

@@ -191,6 +191,117 @@ func HandleOpenURL() http.HandlerFunc {
 	}
 }
 
+// TapRequest is the body for POST /simulators/:udid/tap.
+type TapRequest struct {
+	X        int     `json:"x"`
+	Y        int     `json:"y"`
+	Duration float64 `json:"duration,omitempty"`
+}
+
+// HandleTap sends a tap event on a simulator.
+func HandleTap() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		udid := chi.URLParam(r, "udid")
+
+		var req TapRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		if err := engine.Tap(udid, req.X, req.Y, req.Duration); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "tapped"})
+	}
+}
+
+// SwipeRequest is the body for POST /simulators/:udid/swipe.
+type SwipeRequest struct {
+	X1       int     `json:"x1"`
+	Y1       int     `json:"y1"`
+	X2       int     `json:"x2"`
+	Y2       int     `json:"y2"`
+	Duration float64 `json:"duration,omitempty"`
+}
+
+// HandleSwipe sends a swipe event on a simulator.
+func HandleSwipe() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		udid := chi.URLParam(r, "udid")
+
+		var req SwipeRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		if err := engine.Swipe(udid, req.X1, req.Y1, req.X2, req.Y2, req.Duration); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "swiped"})
+	}
+}
+
+// TextRequest is the body for POST /simulators/:udid/text.
+type TextRequest struct {
+	Text string `json:"text"`
+}
+
+// HandleInputText types text into the simulator.
+func HandleInputText() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		udid := chi.URLParam(r, "udid")
+
+		var req TextRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		if err := engine.InputText(udid, req.Text); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "typed"})
+	}
+}
+
+// KeyRequest is the body for POST /simulators/:udid/key.
+type KeyRequest struct {
+	Key      string  `json:"key"`
+	Duration float64 `json:"duration,omitempty"`
+}
+
+// HandleKeyPress sends a key press event on a simulator.
+func HandleKeyPress() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		udid := chi.URLParam(r, "udid")
+
+		var req KeyRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		if err := engine.KeyPress(udid, req.Key, req.Duration); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "pressed"})
+	}
+}
+
 // HandleSimulatorLogs streams simulator logs via SSE.
 func HandleSimulatorLogs() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

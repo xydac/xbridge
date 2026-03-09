@@ -28,6 +28,10 @@ func main() {
 		cli.NewStatusCmd(),
 		cli.NewRemoteCmd(),
 		cli.NewScreenshotCmd(),
+		cli.NewTapCmd(),
+		cli.NewSwipeCmd(),
+		cli.NewTextCmd(),
+		cli.NewKeyCmd(),
 		cli.NewInstallServiceCmd(),
 		cli.NewUninstallServiceCmd(),
 	)

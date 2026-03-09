@@ -145,6 +145,95 @@ func OpenURL(udid, url string) error {
 	return exec.Command("xcrun", "simctl", "openurl", resolved, url).Run()
 }
 
+var errIDBNotFound = fmt.Errorf("idb not found. Install it with: brew install idb-companion")
+
+func requireIDB() error {
+	if _, err := exec.LookPath("idb"); err != nil {
+		return errIDBNotFound
+	}
+	return nil
+}
+
+// Tap sends a tap event at (x, y) on a simulator via idb.
+func Tap(udid string, x, y int, duration float64) error {
+	if err := requireIDB(); err != nil {
+		return err
+	}
+	resolved, err := ResolveUDID(udid)
+	if err != nil {
+		return err
+	}
+	args := []string{"ui", "tap", fmt.Sprintf("%d", x), fmt.Sprintf("%d", y), "--udid", resolved}
+	if duration > 0 {
+		args = append(args, "--duration", fmt.Sprintf("%f", duration))
+	}
+	out, err := exec.Command("idb", args...).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("idb tap: %s: %w", string(out), err)
+	}
+	return nil
+}
+
+// Swipe sends a swipe event from (x1, y1) to (x2, y2) on a simulator via idb.
+func Swipe(udid string, x1, y1, x2, y2 int, duration float64) error {
+	if err := requireIDB(); err != nil {
+		return err
+	}
+	resolved, err := ResolveUDID(udid)
+	if err != nil {
+		return err
+	}
+	args := []string{"ui", "swipe",
+		fmt.Sprintf("%d", x1), fmt.Sprintf("%d", y1),
+		fmt.Sprintf("%d", x2), fmt.Sprintf("%d", y2),
+		"--udid", resolved,
+	}
+	if duration > 0 {
+		args = append(args, "--duration", fmt.Sprintf("%f", duration))
+	}
+	out, err := exec.Command("idb", args...).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("idb swipe: %s: %w", string(out), err)
+	}
+	return nil
+}
+
+// InputText types text into the focused field on a simulator via idb.
+func InputText(udid, text string) error {
+	if err := requireIDB(); err != nil {
+		return err
+	}
+	resolved, err := ResolveUDID(udid)
+	if err != nil {
+		return err
+	}
+	out, err := exec.Command("idb", "ui", "text", text, "--udid", resolved).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("idb text: %s: %w", string(out), err)
+	}
+	return nil
+}
+
+// KeyPress sends a key press event on a simulator via idb.
+func KeyPress(udid string, key string, duration float64) error {
+	if err := requireIDB(); err != nil {
+		return err
+	}
+	resolved, err := ResolveUDID(udid)
+	if err != nil {
+		return err
+	}
+	args := []string{"ui", "key", key, "--udid", resolved}
+	if duration > 0 {
+		args = append(args, "--duration", fmt.Sprintf("%f", duration))
+	}
+	out, err := exec.Command("idb", args...).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("idb key: %s: %w", string(out), err)
+	}
+	return nil
+}
+
 // FindDeviceByName finds a device UDID by name, preferring available devices.
 func FindDeviceByName(name string) (string, error) {
 	devices, err := ListDevices()

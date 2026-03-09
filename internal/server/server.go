@@ -64,6 +64,10 @@ func (s *Server) setupRoutes() {
 	r.Post("/simulators/{udid}/install", handlers.HandleInstallApp())
 	r.Post("/simulators/{udid}/launch", handlers.HandleLaunchApp())
 	r.Post("/simulators/{udid}/openurl", handlers.HandleOpenURL())
+	r.Post("/simulators/{udid}/tap", handlers.HandleTap())
+	r.Post("/simulators/{udid}/swipe", handlers.HandleSwipe())
+	r.Post("/simulators/{udid}/text", handlers.HandleInputText())
+	r.Post("/simulators/{udid}/key", handlers.HandleKeyPress())
 	r.Get("/simulators/{udid}/logs", handlers.HandleSimulatorLogs())
 
 	// Git (only if project is a git repo)
