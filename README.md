@@ -16,7 +16,12 @@ A small HTTP server that runs on your Mac and lets you trigger iOS builds, manag
 
 ```bash
 # Homebrew
-brew install xbridge
+brew tap xydac/xbridge
+brew install --cask xbridge
+
+# Or download the binary directly
+curl -fsSL https://github.com/xydac/xbridge/releases/latest/download/xbridge_0.1.0_darwin_arm64.tar.gz | tar xz
+sudo mv xbridge /usr/local/bin/
 
 # Or build from source
 go install github.com/xydac/xbridge/cmd/xbridge@latest
